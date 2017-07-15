@@ -38,17 +38,55 @@
 
 	<QuestOrder IgnoreCheckpoints="false" >
 		<!-- Check function status -->
-			<Code File="RunCode" Type="Definition" >
-				<![CDATA[
-					bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
-				]]>
+		<Code File="RunCode" Type="Definition">
+			<![CDATA[
+			private static bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
+			private static bool IsStoreProfile(string path) => return path.StartsWith("store://");
+			private static string Slashify(string path) => return IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
+
+			public __CompiledBatchClass__()
+			{
+				if (profileFunctionsEnabled == null || profileFunctionsEnabled == false)
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!");
+					LoadProfile("Activate Functions.xml");
+				}
+			}
+
+			private static void LoadProfile(string path)
+			{
+				var profile = GetNewPath(path);
+				if (!IsStoreProfile(profile) && !File.Exists(profile))
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Profile does not exist.\n" + profile);
+					return;
+				}
+
+				Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Loading: " + profile);
+				ProfileManager.LoadNew(profile, false);
+			}
+
+			private static string GetNewPath(string path)
+			{
+				if (IsStoreProfile(path))
+					return Slashify(path);
+
+				var currentProfile = ProfileManager.XmlLocation;
+				if (IsStoreProfile(currentProfile))
+					return Slashify(currentProfile + "/../" + path);
+
+				var absolutePath = Path.Combine(Path.GetDirectoryName(currentProfile), path);
+				absolutePath = Path.GetFullPath(absolutePath);
+				var canonicalPath = new Uri(absolutePath).LocalPath;
+				return Slashify(canonicalPath);
+			}]]>
+		</Code>
+		<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false">
+			<Code File="RunCode">
+				<![CDATA[Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
 			</Code>
-			<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false" >
-				<Code File="RunCode">
-					<![CDATA[ Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
-				</Code>
-				<Code File="LoadProfile" ProfileName="..\..\Functions\Activate Functions.xml" />
-			</If>
+			<Code File="LoadProfile" ProfileName="Activate Functions.xml" />
+		</If>
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsHorde" >
@@ -460,7 +498,7 @@
 				<MoveTo X="754.3676" Y="-2065.328" Z="61.23263" />
 			</While>
 			<If Condition="Me.InVehicle &amp;&amp; !IsObjectiveComplete(2, 29725)" >
-				<MoveTo X="962.353" Y="-1959.976" Z="67.76358" />			
+				<MoveTo X="962.353" Y="-1959.976" Z="67.76358" />
 			</If>
 			<If Condition="Me.InVehicle &amp;&amp; !IsObjectiveComplete(3, 29725)" >
 				<MoveTo X="777.6425" Y="-1789.076" Z="56.52419" />
