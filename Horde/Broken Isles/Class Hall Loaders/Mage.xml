@@ -22,7 +22,7 @@
 	<Vendors>
 	</Vendors>
 
-<!-- INITORDER COMMENT 
+<!-- INITORDER COMMENT
 	<InitOrder>
 		Perhaps add detection for loading the class hall if player hasn't unlocked this zone yet.
 		<Code File="Misc\RunLua" Lua="SetCVar('AutoLootDefault', 1)" />
@@ -42,15 +42,15 @@ END INITORDER COMMENT -->
 		<Code File="RunCode" Type="Definition">
 			<![CDATA[
 			private static bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
-			private static bool IsStoreProfile(string path) => return path.StartsWith("store://");
-			private static string Slashify(string path) => return IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
+			private static bool IsStoreProfile(string path) => path.StartsWith("store://");
+			private static string Slashify(string path) => IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
 
 			public __CompiledBatchClass__()
 			{
 				if (profileFunctionsEnabled == null || profileFunctionsEnabled == false)
 				{
 					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!");
-					LoadProfile("Activate Functions.xml");
+					LoadProfile(@"..\..\..\Functions\Activate Functions.xml");
 				}
 			}
 
@@ -82,12 +82,6 @@ END INITORDER COMMENT -->
 				return Slashify(canonicalPath);
 			}]]>
 		</Code>
-		<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false">
-			<Code File="RunCode">
-				<![CDATA[Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
-			</Code>
-			<Code File="LoadProfile" ProfileName="Activate Functions.xml" />
-		</If>
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsAlliance" >
@@ -174,7 +168,7 @@ END INITORDER COMMENT -->
 						{
 							Bots.Professionbuddy.PBLog.Log(System.Windows.Media.Colors.DeepSkyBlue, "[Azyul Navigator]: ", System.Windows.Media.Colors.LightGreen, "Using Dalaran Hearthstone!");
 							await CommonCoroutines.LandAndDismount("Using Hearthstone to reach Dalaran (Broken Isles)");
-							await CommonCoroutines.StopMoving(); 
+							await CommonCoroutines.StopMoving();
 							WoWItem dalaranHearth = StyxWoW.Me.BagItems.FirstOrDefault(x => x.Entry == 140192);
 							if (dalaranHearth.CooldownTimeLeft <= TimeSpan.FromMinutes(3))
 							{
@@ -228,7 +222,7 @@ END INITORDER COMMENT -->
 								end
 							end
 						";
-						
+
 						int timeLeft = Lua.GetReturnVal<int>(luaString, 0);
 
 						if (timeLeft == 0)
@@ -270,7 +264,7 @@ END INITORDER COMMENT -->
 						<Code File="RunCode" Code="SpellManager.Cast(30449); await Coroutine.Sleep(550);" />
 					</Code>
 
-					<Code File="KillUntilComplete" MobId="102785" TerminateWhen="Bots.DungeonBuddy.Helpers.ScenarioInfo.Current.CurrentStageNumber != 1" /> 
+					<Code File="KillUntilComplete" MobId="102785" TerminateWhen="Bots.DungeonBuddy.Helpers.ScenarioInfo.Current.CurrentStageNumber != 1" />
 					<Code File="WaitTimer" WaitTime="60000" TerminateWhen="Bots.DungeonBuddy.Helpers.ScenarioInfo.Current.CurrentStageNumber != 1" />
 
 					<Code File="Hooks\DoWhen" ActivityName="Spellsteal" Command="Remove" />
@@ -294,7 +288,7 @@ END INITORDER COMMENT -->
 								<Hotspot X="1344.409" Y="-219.0343" Z="43.33354" />
 								<Hotspot X="1397.776" Y="-234.3117" Z="50.0569" />
 								<Hotspot X="1394.637" Y="-268.7403" Z="52.42683" />
-								<Hotspot X="1355.073" Y="-308.8704" Z="47.66777" /> 
+								<Hotspot X="1355.073" Y="-308.8704" Z="47.66777" />
 							</HuntingGrounds>
 						</Code>
 					</If>
@@ -331,9 +325,9 @@ END INITORDER COMMENT -->
 					<Code File="InteractWith" MobId="246952" QuestId="41085" X="-783.6354" Y="4689.01" Z="944.4333" />
 				</If>
 
-				<Code File="UserDialog" QuestId="41085" AllowBotStop="True" SoundCue="Exclamation" SoundCueInterval="150" ExpiryTime="300" ExpiryAction="InputEnabled_Continue" 
+				<Code File="UserDialog" QuestId="41085" AllowBotStop="True" SoundCue="Exclamation" SoundCueInterval="150" ExpiryTime="300" ExpiryAction="InputEnabled_Continue"
 				Text="Choose an artifact weapon.\n\nIf you do not choose within 5minutes, the bot will pick the one appropriate for your current specialization." />
-				
+
 				<If Condition="!IsQuestCompleted(41085)" >
 					<If Condition="Me.Specialization == WoWSpec.MageArcane" >
 						<Code File="Misc\RunLua" QuestId="41085" Lua="QuestChoiceFrameOption1.OptionButton:Click()" WaitTime="1000" />
@@ -393,7 +387,7 @@ END INITORDER COMMENT -->
 				<While Condition="!Me.HasAura(213170)" >
 					<Code File="RunCode"><![CDATA[
 							Logging.Write(System.Windows.Media.Colors.Yellow, "[Profile]: Teleporting to class hall.");
-							await CommonCoroutines.StopMoving(); 
+							await CommonCoroutines.StopMoving();
 							SpellManager.Cast(193759);
 						]]>
 					</Code>
@@ -446,7 +440,7 @@ END INITORDER COMMENT -->
 			<While Condition="DoQuest(39718)" >
 				<Code File="InteractWith" MobId="244510" QuestId="39718" QuestObjectiveIndex="1" X="-944.4427" Y="4707.374" Z="928.9707" /> <!-- NOTE: <ConditionalCheck> : UseWhen in Class Hall, TerminateWhen Me In Dalaran -->
 				<Code File="WaitTimer" WaitTime="3000" />
-				<Code File="LoadProfile" ProfileName="../Azsuna.xml" />		
+				<Code File="LoadProfile" ProfileName="../Azsuna.xml" />
 			</While>
 		<!-- END Introductory Class Hall Quests -->
 
@@ -501,7 +495,7 @@ END INITORDER COMMENT -->
 						<While Condition="!Me.HasAura(213170)" >
 							<Code File="RunCode"><![CDATA[
 									Logging.Write(System.Windows.Media.Colors.Yellow, "[Profile]: Teleporting to class hall.");
-									await CommonCoroutines.StopMoving(); 
+									await CommonCoroutines.StopMoving();
 									SpellManager.Cast(193759);
 								]]>
 							</Code>
@@ -530,7 +524,7 @@ END INITORDER COMMENT -->
 						<While Condition="!Me.HasAura(213170)" >
 							<Code File="RunCode"><![CDATA[
 									Logging.Write(System.Windows.Media.Colors.Yellow, "[Profile]: Teleporting to class hall.");
-									await CommonCoroutines.StopMoving(); 
+									await CommonCoroutines.StopMoving();
 									SpellManager.Cast(193759);
 								]]>
 							</Code>
@@ -559,7 +553,7 @@ END INITORDER COMMENT -->
 						<While Condition="!Me.HasAura(213170)" >
 							<Code File="RunCode"><![CDATA[
 									Logging.Write(System.Windows.Media.Colors.Yellow, "[Profile]: Teleporting to class hall.");
-									await CommonCoroutines.StopMoving(); 
+									await CommonCoroutines.StopMoving();
 									SpellManager.Cast(193759);
 								]]>
 							</Code>
@@ -588,7 +582,7 @@ END INITORDER COMMENT -->
 						<While Condition="!Me.HasAura(213170)" >
 							<Code File="RunCode"><![CDATA[
 									Logging.Write(System.Windows.Media.Colors.Yellow, "[Profile]: Teleporting to class hall.");
-									await CommonCoroutines.StopMoving(); 
+									await CommonCoroutines.StopMoving();
 									SpellManager.Cast(193759);
 								]]>
 							</Code>
@@ -611,7 +605,7 @@ END INITORDER COMMENT -->
 
 		<!-- Load into existing zone -->
 			<!-- Azsuna -->
-			<If Condition="currentZone == 1" > 
+			<If Condition="currentZone == 1" >
 				<If Condition="Me.HasAura(213170)" >
 					<MoveTo X="4020.336" Y="7285.195" Z="41.62424" />
 					<Code File="InteractWith" MobId="244510" WaitTime="3000" X="-944.4427" Y="4707.374" Z="928.9707" />
@@ -621,7 +615,7 @@ END INITORDER COMMENT -->
 			<!-- END Azsuna -->
 
 			<!-- Val'sharah -->
-			<If Condition="currentZone == 2" > 
+			<If Condition="currentZone == 2" >
 				<If Condition="Me.HasAura(213170)" >
 					<MoveTo X="4020.336" Y="7285.195" Z="41.62424" />
 					<Code File="InteractWith" MobId="244510" WaitTime="3000" X="-944.4427" Y="4707.374" Z="928.9707" />
@@ -641,7 +635,7 @@ END INITORDER COMMENT -->
 			<!-- END Highmountain -->
 
 			<!-- Stormheim -->
-			<If Condition="currentZone == 4" > 
+			<If Condition="currentZone == 4" >
 				<If Condition="Me.HasAura(213170)" >
 					<MoveTo X="4020.336" Y="7285.195" Z="41.62424" />
 					<Code File="InteractWith" MobId="244510" WaitTime="3000" X="-944.4427" Y="4707.374" Z="928.9707" />

@@ -57,7 +57,7 @@
 		<!-- Bradensbrook -->
 	</Vendors>
 
-	<!-- INITORDER COMMENT 
+	<!-- INITORDER COMMENT
 	<InitOrder>
 		Perhaps add detection for loading the class hall if player hasn't unlocked this zone yet.
 		<Code File="Misc\RunLua" Lua="SetCVar('AutoLootDefault', 1)" />
@@ -77,15 +77,15 @@ END INITORDER COMMENT -->
 		<Code File="RunCode" Type="Definition">
 			<![CDATA[
 			private static bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
-			private static bool IsStoreProfile(string path) => return path.StartsWith("store://");
-			private static string Slashify(string path) => return IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
+			private static bool IsStoreProfile(string path) => path.StartsWith("store://");
+			private static string Slashify(string path) => IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
 
 			public __CompiledBatchClass__()
 			{
 				if (profileFunctionsEnabled == null || profileFunctionsEnabled == false)
 				{
 					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!");
-					LoadProfile("Activate Functions.xml");
+					LoadProfile(@"..\..\Functions\Activate Functions.xml");
 				}
 			}
 
@@ -117,12 +117,6 @@ END INITORDER COMMENT -->
 				return Slashify(canonicalPath);
 			}]]>
 		</Code>
-		<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false">
-			<Code File="RunCode">
-				<![CDATA[Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
-			</Code>
-			<Code File="LoadProfile" ProfileName="Activate Functions.xml" />
-		</If>
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsHorde" >
@@ -241,7 +235,7 @@ END INITORDER COMMENT -->
 		</If>
 	<!-- END Zone Introductory Quests -->
 
-	<!-- Syndrelle Side Quests 
+	<!-- Syndrelle Side Quests
 		<PickUp Nav="Fly" QuestName="Wisp in the Willows" QuestId="39354" GiverName="Syndrelle" GiverId="95202" X="2456.009" Y="6615.904" Z="136.4858" />
 		<While Condition="DoQuest(39354)" >
 			<Code File="InteractWith" MobId="110572" X="2458.759" Y="6613.716" Z="136.4768" TerminateWhen="Me.InVehicle" />
@@ -1029,7 +1023,7 @@ END INITORDER COMMENT -->
 				<Code File="RunCode" Code="
 					var gatePoi = ObjectManager.GetObjectsOfType&lt;WoWGameObject&gt;().FirstOrDefault(x =&gt; x.SubType == WoWGameObjectType.Door &amp;&amp; x.Distance &lt; 5 &amp;&amp; x.State == WoWGameObjectState.Ready);
 
-					while (gatePoi.State == WoWGameObjectState.Ready) 
+					while (gatePoi.State == WoWGameObjectState.Ready)
 					{
 						await CommonCoroutines.StopMoving();
 						gatePoi.Interact();
@@ -1111,7 +1105,7 @@ END INITORDER COMMENT -->
 			<Code File="RunCode" Code="
 						var gatePoi = ObjectManager.GetObjectsOfType&lt;WoWGameObject&gt;().FirstOrDefault(x =&gt; x.SubType == WoWGameObjectType.Door &amp;&amp; x.Distance &lt; 5 &amp;&amp; x.State == WoWGameObjectState.Ready);
 
-						while (gatePoi.State == WoWGameObjectState.Ready) 
+						while (gatePoi.State == WoWGameObjectState.Ready)
 						{
 							gatePoi.Interact();
 							await Coroutine.Yield();
@@ -1209,7 +1203,7 @@ END INITORDER COMMENT -->
 				{
 					Bots.Professionbuddy.PBLog.Log(System.Windows.Media.Colors.DeepSkyBlue, "[Azyul Navigator]: ", System.Windows.Media.Colors.LightGreen, "Using Dalaran Hearthstone!");
 					await CommonCoroutines.LandAndDismount("Using Hearthstone to reach Dalaran (Broken Isles)");
-					await CommonCoroutines.StopMoving(); 
+					await CommonCoroutines.StopMoving();
 					WoWItem dalaranHearth = StyxWoW.Me.BagItems.FirstOrDefault(x => x.Entry == 140192);
 					if (dalaranHearth.CooldownTimeLeft <= TimeSpan.FromMinutes(3))
 					{
