@@ -54,7 +54,7 @@
 		<!-- END Check function status -->
 		
 		<If Condition="Me.IsAlliance" >
-			<Code File="LoadProfile" ProfileName="..\1-110 Autoloader.xml" RememberProfile="true" />
+			<Code File="LoadProfile" ProfileName="..\1-110 Autoloader.xml" />
 		</If>
 
 		<Code File="RunCode" Type="Definition"><![CDATA[
@@ -301,11 +301,11 @@
 			</If>
 
 			<If Condition="Me.Class == WoWClass.DemonHunter &amp;&amp; !IsQuestCompleted(41002)" >
-				<Code File="LoadProfile" ProfileName="Starters/Demon Hunter.xml" />	
+				<Code File="LoadProfile" ProfileName="Starters/Demon Hunter.xml" RememberProfile="true" />
 			</If>
 
 			<If Condition="!IsQuestCompleted(44663)" > <!-- Legion Introductory Quest Finale, 44814 auto-flags complete if this one is comlete. -->
-				<Code File="LoadProfile" ProfileName="Broken Isles/Legion Intro Quests" />
+				<Code File="LoadProfile" ProfileName="Broken Isles/Legion Intro Quests" RemeberProfile="true" />
 			</If>
 
 			<!-- Load Class Hall stuff -->

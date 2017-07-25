@@ -83,7 +83,7 @@
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsAlliance" >
-			<Code File="LoadProfile" ProfileName="..\..\1-110 Autoloader.xml" RememberProfile="true" />
+			<Code File="LoadProfile" ProfileName="..\..\1-110 Autoloader.xml" />
 		</If>
 		<!-- RunCode Methods -->
 			<Code File="RunCode">
@@ -520,7 +520,7 @@
 			<Code File="Misc\RunLua" Lua="GetNumRoutes(2); TakeTaxiNode(2);" />
 		</If>
 
-		<Code File="LoadProfile" ProfileName="..\41-58 Autoloader.xml" RememberProfile="true" /> <!-- Eastern Kingdoms portion. -->
+		<Code File="LoadProfile" ProfileName="..\41-58 Autoloader.xml" /> <!-- Eastern Kingdoms portion. -->
 
 	</QuestOrder>
 </HBProfile>

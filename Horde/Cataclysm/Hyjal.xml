@@ -89,7 +89,7 @@
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsAlliance" >
-			<Code File="LoadProfile" ProfileName="..\..\1-110 Autoloader.xml" RememberProfile="true" />
+			<Code File="LoadProfile" ProfileName="..\..\1-110 Autoloader.xml" />
 		</If>
 		<!-- RunCode Methods -->
 			<Code File="RunCode">
@@ -501,7 +501,10 @@
 			<DefaultNavType Value="Run" />
 		</If>
 
-		<TurnIn QuestName="Into the Maw!" QuestId="25617" TurnInName="Jordan Olafson" TurnInId="40834" X="5012.622" Y="-2041.206" Z="1148.975" />
+		<If Condition="QuestDone(25618)" >
+			<MoveTo X="5020.23" Y="-2030.992" Z="1148.976" />
+			<TurnIn QuestName="Into the Maw!" QuestId="25618" TurnInName="Jordan Olafson" TurnInId="40834" X="5012.622" Y="-2041.206" Z="1148.975" />
+		</If>
 		<PickUp QuestName="Forged of Shadow and Flame" QuestId="25575" GiverName="Jordan Olafson" GiverId="40834" X="5011.949" Y="-2039.236" Z="1148.975" />
 		<PickUp QuestName="Crushing the Cores" QuestId="25577" GiverName="Jordan Olafson" GiverId="40834" X="5011.949" Y="-2039.236" Z="1148.975" />
 		<PickUp QuestName="Rage of the Wolf Ancient" QuestId="25576" GiverName="Yargra Blackscar" GiverId="40837" X="5010.66" Y="-2044.97" Z="1148.975" />
@@ -632,7 +635,7 @@
 		<While Condition="DoQuest(25428)" >
 			<MoveTo X="5001.762" Y="-1545.177" Z="1330.917" />
 			<Code File="ForcedDismount" />
-			<Code File="UseItem" ItemId="53464" TerminateWhen="Unit(40107, u =&gt; u.Attackable) != null" />
+			<Code File="UseItem" ItemId="53464" QuestId="25428" TerminateWhen="Unit(40107, u =&gt; u.Attackable) != null" />
 			<Code File="KillUntilComplete" MobId="40107" QuestId="25428" TerminateWhen="Unit(40107, u =&gt; !u.Attackable) != null" />
 		</While>
 
@@ -1500,7 +1503,7 @@
 			<Code File="InteractWith" MobId="209081" NonCompeteDistance="0" PreInteractMountStrategy="Dismount" X="5503.501" Y="-3626.701" Z="1567.483" TerminateWhen="Me.ZoneId != 616" />
 		</While>
 
-		<Code File="LoadProfile" ProfileName="..\80-85 Autoloader.xml" RememberProfile="true" />
+		<Code File="LoadProfile" ProfileName="..\80-85 Autoloader.xml" />
 
 	</QuestOrder>
 </HBProfile>

@@ -97,7 +97,7 @@
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsAlliance" >
-			<Code File="LoadProfile" ProfileName="..\..\1-110 Autoloader.xml" RememberProfile="true" />
+			<Code File="LoadProfile" ProfileName="..\..\1-110 Autoloader.xml" />
 		</If>
 		<!-- RunCode Methods -->
 			<Code File="RunCode">
@@ -902,7 +902,7 @@
 
 		<Checkpoint Level="77" />
 
-		<Code File="LoadProfile" ProfileName="Sholazar Basin.xml" RememberProfile="true" />
+		<Code File="LoadProfile" ProfileName="Sholazar Basin.xml" />
 
 	</QuestOrder>
 </HBProfile>
