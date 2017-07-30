@@ -40,17 +40,49 @@
 
 	<QuestOrder IgnoreCheckpoints="false" >
 		<!-- Check function status -->
-			<Code File="RunCode" Type="Definition" >
-				<![CDATA[
-					bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
-				]]>
-			</Code>
-			<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false" >
-				<Code File="RunCode">
-					<![CDATA[ Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
-				</Code>
-				<Code File="LoadProfile" ProfileName="..\..\Functions\Activate Functions.xml" />
-			</If>
+		<Code File="RunCode" Type="Definition">
+			<![CDATA[
+			private static bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
+			private static bool IsStoreProfile(string path) => path.StartsWith("store://");
+			private static string Slashify(string path) => IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
+
+			public __CompiledBatchClass__()
+			{
+				if (profileFunctionsEnabled == null || profileFunctionsEnabled == false)
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!");
+					LoadProfile(@"..\..\Functions\Activate Functions.xml");
+				}
+			}
+
+			private static void LoadProfile(string path)
+			{
+				var profile = GetNewPath(path);
+				if (!IsStoreProfile(profile) && !File.Exists(profile))
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Profile does not exist.\n" + profile);
+					return;
+				}
+
+				Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Loading: " + profile);
+				ProfileManager.LoadNew(profile, false);
+			}
+
+			private static string GetNewPath(string path)
+			{
+				if (IsStoreProfile(path))
+					return Slashify(path);
+
+				var currentProfile = ProfileManager.XmlLocation;
+				if (IsStoreProfile(currentProfile))
+					return Slashify(currentProfile + "/../" + path);
+
+				var absolutePath = Path.Combine(Path.GetDirectoryName(currentProfile), path);
+				absolutePath = Path.GetFullPath(absolutePath);
+				var canonicalPath = new Uri(absolutePath).LocalPath;
+				return Slashify(canonicalPath);
+			}]]>
+		</Code>
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsAlliance" >
@@ -697,7 +729,7 @@
 						return false;
 					}
 					if (Me.CurrentTarget == null || Me.CurrentTarget.IsDead || Me.CurrentTarget.Entry != 47220) return false;
-					if (Me.CurrentTarget.HealthPercent <= 70) 
+					if (Me.CurrentTarget.HealthPercent <= 70)
 						Lua.DoString("PetPassiveMode();");
 					if (Me.CurrentTarget.HealthPercent > 50) return false;
 
@@ -884,7 +916,7 @@
 						return false;
 					}
 					if (Me.CurrentTarget == null || Me.CurrentTarget.IsDead || Me.CurrentTarget.Entry != 51217 || Me.CurrentTarget.HasAura(94365)) return false;
-					if (Me.CurrentTarget.HealthPercent <= 45) 
+					if (Me.CurrentTarget.HealthPercent <= 45)
 						Lua.DoString("PetPassiveMode();");
 					if (Me.CurrentTarget.HealthPercent > 20) return false;
 
@@ -926,7 +958,7 @@
 						return false;
 					}
 					if (Me.CurrentTarget == null || Me.CurrentTarget.IsDead || Me.CurrentTarget.Entry != 51193) return false;
-					if (Me.CurrentTarget.HealthPercent <= 45) 
+					if (Me.CurrentTarget.HealthPercent <= 45)
 						Lua.DoString("PetPassiveMode();");
 					if (Me.CurrentTarget.HealthPercent > 35) return false;
 

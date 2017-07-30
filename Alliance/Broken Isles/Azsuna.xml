@@ -66,7 +66,7 @@
 		<Mob Name="Brimstone Destroyer" Id="93237" Flags="Combat" />
 	</Blacklist>
 
-	<!-- INITORDER COMMENT 
+	<!-- INITORDER COMMENT
 	<InitOrder>
 		Perhaps add detection for loading the class hall if player hasn't unlocked this zone yet.
 		<Code File="Misc\RunLua" Lua="SetCVar('AutoLootDefault', 1)" />
@@ -83,17 +83,49 @@ END INITORDER COMMENT -->
 
 	<QuestOrder>
 		<!-- Check function status -->
-			<Code File="RunCode" Type="Definition" >
-				<![CDATA[
-					bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
-				]]>
-			</Code>
-			<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false" >
-				<Code File="RunCode">
-					<![CDATA[ Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
-				</Code>
-				<Code File="LoadProfile" ProfileName="..\..\Functions\Activate Functions.xml" />
-			</If>
+		<Code File="RunCode" Type="Definition">
+			<![CDATA[
+			private static bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
+			private static bool IsStoreProfile(string path) => path.StartsWith("store://");
+			private static string Slashify(string path) => IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
+
+			public __CompiledBatchClass__()
+			{
+				if (profileFunctionsEnabled == null || profileFunctionsEnabled == false)
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!");
+					LoadProfile(@"..\..\Functions\Activate Functions.xml");
+				}
+			}
+
+			private static void LoadProfile(string path)
+			{
+				var profile = GetNewPath(path);
+				if (!IsStoreProfile(profile) && !File.Exists(profile))
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Profile does not exist.\n" + profile);
+					return;
+				}
+
+				Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Loading: " + profile);
+				ProfileManager.LoadNew(profile, false);
+			}
+
+			private static string GetNewPath(string path)
+			{
+				if (IsStoreProfile(path))
+					return Slashify(path);
+
+				var currentProfile = ProfileManager.XmlLocation;
+				if (IsStoreProfile(currentProfile))
+					return Slashify(currentProfile + "/../" + path);
+
+				var absolutePath = Path.Combine(Path.GetDirectoryName(currentProfile), path);
+				absolutePath = Path.GetFullPath(absolutePath);
+				var canonicalPath = new Uri(absolutePath).LocalPath;
+				return Slashify(canonicalPath);
+			}]]>
+		</Code>
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsHorde" >
@@ -528,7 +560,7 @@ END INITORDER COMMENT -->
 					<![CDATA[
 							Lua.DoString("ExtraActionButton1:Click();");
 							await Coroutine.Sleep(1250);
-							SpellManager.ClickRemoteLocation(new WoWPoint(1187.097, 6143.048, 79.17685));  
+							SpellManager.ClickRemoteLocation(new WoWPoint(1187.097, 6143.048, 79.17685));
 							await Coroutine.Sleep(5000);
 						]]>
 				</Code>
@@ -807,7 +839,7 @@ END INITORDER COMMENT -->
 					<PursueGameObject Id="91449" />
 					<PursueUnit Id="88086" PursueWhen="(UNIT.IsAlive || UNIT.Lootable) &amp;&amp; !UNIT.TaggedByOther" />
 					<PursueUnit Id="88087" PursueWhen="(UNIT.IsAlive || UNIT.Lootable) &amp;&amp; !UNIT.TaggedByOther" />
-					<!-- Naga Brute,  commented because it leads players towards Skrogs 
+					<!-- Naga Brute,  commented because it leads players towards Skrogs
 						<PursueUnit Id="91459" PursueWhen="(UNIT.IsAlive || UNIT.Lootable) &amp;&amp; !UNIT.TaggedByOther" /> -->
 					<PursueUnit Id="107447" PursueWhen="(UNIT.IsAlive || UNIT.Lootable) &amp;&amp; !UNIT.TaggedByOther" />
 				</PursuitList>
@@ -1908,7 +1940,7 @@ END INITORDER COMMENT -->
 					{
 						Bots.Professionbuddy.PBLog.Log(System.Windows.Media.Colors.DeepSkyBlue, "[Azyul Navigator]: ", System.Windows.Media.Colors.LightGreen, "Using Dalaran Hearthstone!");
 						await CommonCoroutines.LandAndDismount("Using Hearthstone to reach Dalaran (Broken Isles)");
-						await CommonCoroutines.StopMoving(); 
+						await CommonCoroutines.StopMoving();
 						WoWItem dalaranHearth = StyxWoW.Me.BagItems.FirstOrDefault(x => x.Entry == 140192);
 						if (dalaranHearth.CooldownTimeLeft <= TimeSpan.FromMinutes(3))
 						{

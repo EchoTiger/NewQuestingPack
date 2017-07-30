@@ -38,7 +38,7 @@
 
 	<Blacklist>
 		<Mob Name="Deepscale Fleshripper" Id="60858" Flags="Pull" />
-		<Mob Name="Bloodfang Ripper" Id="35505" Flags="Combat" /> <!-- Apart of the mass worgen pile --> 
+		<Mob Name="Bloodfang Ripper" Id="35505" Flags="Combat" /> <!-- Apart of the mass worgen pile -->
 		<Mob Name="Bloodfang Stalker" Id="51277" Flags="Combat" /> <!-- Apart of the mass worgen pile -->
 		<Mob Name="Bloodfang Stalker" Id="35229" Flags="Combat" /> <!-- Apart of the mass worgen pile -->
 		<Mob Name="Horrid Abomination" Id="36231" Flags="Pull" />
@@ -48,22 +48,54 @@
 		<Mob Name="Orc Raider" Id="37916" Flags="Combat" />
 		<Mob Name="Riding War Wolf" Id="37939" Flags="Combat" />
 		<Mob Name="Wolfmaw Outrider" Id="37938" Flags="Combat" />
-		<Mob Name="Orcish War Machine" Id="37921" Flags="Combat" />	
+		<Mob Name="Orcish War Machine" Id="37921" Flags="Combat" />
 	</Blacklist>
 
 	<QuestOrder IgnoreCheckpoints="false" ContinuallySkipToCheckpoints="true" >
 		<!-- Check function status -->
-			<Code File="RunCode" Type="Definition" >
-				<![CDATA[
-					bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
-				]]>
-			</Code>
-			<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false" >
-				<Code File="RunCode">
-					<![CDATA[ Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
-				</Code>
-				<Code File="LoadProfile" ProfileName="..\..\Functions\Activate Functions.xml" />
-			</If>
+		<Code File="RunCode" Type="Definition">
+			<![CDATA[
+			private static bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
+			private static bool IsStoreProfile(string path) => path.StartsWith("store://");
+			private static string Slashify(string path) => IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
+
+			public __CompiledBatchClass__()
+			{
+				if (profileFunctionsEnabled == null || profileFunctionsEnabled == false)
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!");
+					LoadProfile(@"..\..\Functions\Activate Functions.xml");
+				}
+			}
+
+			private static void LoadProfile(string path)
+			{
+				var profile = GetNewPath(path);
+				if (!IsStoreProfile(profile) && !File.Exists(profile))
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Profile does not exist.\n" + profile);
+					return;
+				}
+
+				Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Loading: " + profile);
+				ProfileManager.LoadNew(profile, false);
+			}
+
+			private static string GetNewPath(string path)
+			{
+				if (IsStoreProfile(path))
+					return Slashify(path);
+
+				var currentProfile = ProfileManager.XmlLocation;
+				if (IsStoreProfile(currentProfile))
+					return Slashify(currentProfile + "/../" + path);
+
+				var absolutePath = Path.Combine(Path.GetDirectoryName(currentProfile), path);
+				absolutePath = Path.GetFullPath(absolutePath);
+				var canonicalPath = new Uri(absolutePath).LocalPath;
+				return Slashify(canonicalPath);
+			}]]>
+		</Code>
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsHorde" >
@@ -649,7 +681,7 @@
 
 		<PickUp QuestName="Return to Stormglen" QuestId="24673" GiverName="Lord Darius Crowley" GiverId="37195" X="-2072.849" Y="1274.386" Z="-85.28439" />
 		<If Condition="QuestDone(24673) &amp;&amp; Me.HearthstoneAreaId == 4731 &amp;&amp; Unit(37102) == null" >
-			<Code File="UseHearthstone" WaitForCD="false" /> 
+			<Code File="UseHearthstone" WaitForCD="false" />
 		</If>
 		<TurnIn QuestName="Return to Stormglen" QuestId="24673" TurnInName="Gwen Armstead" TurnInId="37102" X="-2456.291" Y="1552.974" Z="18.6926" />
 
@@ -793,13 +825,13 @@
 		<PickUp QuestName="They Have Allies, But So Do We" QuestId="24681" GiverName="Lord Darius Crowley" GiverId="38149" X="-1326.282" Y="2119.982" Z="5.631312" />
 		<While Condition="DoQuest(24681)">
 			<!-- This really needs to be improved.  Right now it's handled so poorly due to vehicles having no anti-stuck -->
-			<DisableBehavior Name="Combat" />		
+			<DisableBehavior Name="Combat" />
 			<Code File="InteractWith" MobId="38150" NonCompeteDistance="0" QuestId="24681" X="-1329.487" Y="2115.918" Z="5.632293" TerminateWhen="Me.InVehicle" />
 			<While Condition="DoQuest(24681) &amp;&amp; Me.InVehicle" >
 				<MoveTo QuestId="24681" X="-1383.552" Y="2432.025" Z="72.33658" />
 				<Code File="Vehicles\CannonControl" QuestId="24681" MobId="37939" MobId2="37916" MobId3="37921" ExitButton="3" Gravity="35" Velocity="78" VehicleId="37927" MinAngle="-0.09" MaxAngle="1.04" Buttons="2,1" TerminateWhen="!Me.InVehicle" />
 				<MoveTo X="-1329.487" Y="2115.918" Z="5.632293" />
-			</While>			
+			</While>
 			<Code File="EjectVeh" />
 			<EnableBehavior Name="Combat" />
 		</While>

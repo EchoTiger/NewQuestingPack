@@ -28,13 +28,13 @@
 	<Blacklist>
 	</Blacklist>
 
-	<Mailboxes> 
+	<Mailboxes>
 	</Mailboxes>
 
 	<Vendors>
 	</Vendors>
 
-<!-- INITORDER COMMENT 
+<!-- INITORDER COMMENT
 	<InitOrder>
 		Perhaps add detection for loading the class hall if player hasn't unlocked this zone yet.
 		<Code File="Misc\RunLua" Lua="SetCVar('AutoLootDefault', 1)" />
@@ -51,17 +51,49 @@ END INITORDER COMMENT -->
 
 	<QuestOrder>
 		<!-- Check function status -->
-			<Code File="RunCode" Type="Definition" >
-				<![CDATA[
-					bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
-				]]>
-			</Code>
-			<If Condition="profileFunctionsEnabled == null || profileFunctionsEnabled == false" >
-				<Code File="RunCode">
-					<![CDATA[ Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!"); ]]>
-				</Code>
-				<Code File="LoadProfile" ProfileName="..\..\..\Functions\Activate Functions.xml" />
-			</If>
+		<Code File="RunCode" Type="Definition">
+			<![CDATA[
+			private static bool? profileFunctionsEnabled => (bool?)AppDomain.CurrentDomain.GetData("QuestingProfiles_FunctionsEnabled");
+			private static bool IsStoreProfile(string path) => path.StartsWith("store://");
+			private static string Slashify(string path) => IsStoreProfile(path) ? path.Replace(@"\", "/") : path.Replace("/", @"\");
+
+			public __CompiledBatchClass__()
+			{
+				if (profileFunctionsEnabled == null || profileFunctionsEnabled == false)
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Please stand by as the functions are being activated!");
+					LoadProfile(@"..\..\..\Functions\Activate Functions.xml");
+				}
+			}
+
+			private static void LoadProfile(string path)
+			{
+				var profile = GetNewPath(path);
+				if (!IsStoreProfile(profile) && !File.Exists(profile))
+				{
+					Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Profile does not exist.\n" + profile);
+					return;
+				}
+
+				Bots.Professionbuddy.PBLog.Log(Colors.MediumPurple, "[Profile Message!]: ", Colors.Yellow, "Loading: " + profile);
+				ProfileManager.LoadNew(profile, false);
+			}
+
+			private static string GetNewPath(string path)
+			{
+				if (IsStoreProfile(path))
+					return Slashify(path);
+
+				var currentProfile = ProfileManager.XmlLocation;
+				if (IsStoreProfile(currentProfile))
+					return Slashify(currentProfile + "/../" + path);
+
+				var absolutePath = Path.Combine(Path.GetDirectoryName(currentProfile), path);
+				absolutePath = Path.GetFullPath(absolutePath);
+				var canonicalPath = new Uri(absolutePath).LocalPath;
+				return Slashify(canonicalPath);
+			}]]>
+		</Code>
 		<!-- END Check function status -->
 
 		<If Condition="Me.IsHorde" >
@@ -139,7 +171,7 @@ END INITORDER COMMENT -->
 				<Code File="InteractWith" MobId="109788" WaitTime="1250" X="-1537.278" Y="1016.035" Z="313.6463" />
 				<Code File="Misc\RunLua" WaitTime="2000" Lua="QuestFrameAcceptButton:Click();" />
 				<Code File="Misc\RunLua" WaitTime="1500" Lua="if QuestChoiceFrameOption2.OptionButton:IsVisible() then QuestChoiceFrameOption2.OptionButton:Click() else QuestChoiceFrameOption1.OptionButton:Click() end" />
-				<!-- If this isn't our last artifact, then there will be a second dialog box here.  This code is uncommented out to ignore it since this should typically be our last artifact 
+				<!-- If this isn't our last artifact, then there will be a second dialog box here.  This code is uncommented out to ignore it since this should typically be our last artifact
 					<Code File="Misc\RunLua" WaitTime="1500" Lua="StaticPopup1Button1:Click();" /> -->
 				<Code File="Misc\RunLua" WaitTime="1000" Lua="StaticPopup1Button2:Click();" /> <!-- Decline changing specs -->
 			</If>
@@ -239,7 +271,7 @@ END INITORDER COMMENT -->
 							<PursueUnit Id="102861" PursueWhen="UNIT.Y &gt; 1500" />
 							<PursueUnit Id="102861" PursueWhen="UNIT.Y &gt; 1500" />
 							<PursueUnit Id="102549" PursueWhen="UNIT.Y &gt; 1500" />
-							<PursueUnit Id="102244" PursueWhen="UNIT.Y &gt; 1500" /> 
+							<PursueUnit Id="102244" PursueWhen="UNIT.Y &gt; 1500" />
 						</PursuitList>
 					</Code>
 				</If>
